@@ -1,0 +1,41 @@
+{
+  "name": "osm-api",
+  "version": "1.0.0",
+  "description": "Osm Api ",
+  "main": "dist/src/index.js",
+  "scripts": {
+    "start": "tsc && node dist/src/index.js",
+    "prettier-format": "prettier --config .prettierrc src/**/*.ts --write",
+    "lint": "eslint . --ext .ts",
+    "lint-and-fix": "eslint . --ext .ts --fix"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BorisGautier/osm-api.git"
+  },
+  "keywords": [
+    "osm",
+    "api",
+    "pbf",
+    "geofabrik",
+    "nodejs"
+  ],
+  "author": "Boris Gautier",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/BorisGautier/osm-api/issues"
+  },
+  "homepage": "https://github.com/BorisGautier/osm-api#readme",
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.45.1",
+    "@typescript-eslint/parser": "^5.45.1",
+    "eslint": "^8.29.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "prettier": "^2.8.0",
+    "typescript": "^4.9.3"
+  },
+   "dependencies": {
+    "ogr2ogr": "^4.0.0"
+  }
+}
