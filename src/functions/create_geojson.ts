@@ -6,9 +6,7 @@ export function createGeoJson(
   identifiant: string,
   cb: (err: any, { result }: any) => void
 ) {
-    let save_path = `C:/Users/HWTP4412/Documents/Projets/Nodejs/osm-api/src/osm/data/${country}/${identifiant}.geojson`;
-    
-    
+  const save_path = `C:/Users/HWTP4412/Documents/Projets/Nodejs/osm-api/src/osm/data/${country}/${identifiant}.geojson`;
 
   ogr2ogr(
     `C:/Users/HWTP4412/Documents/Projets/Nodejs/osm-api/src/osm/${country}.osm.pbf`,
@@ -21,7 +19,7 @@ export function createGeoJson(
         `${tag}`,
         '-oo',
         'CONFIG_FILE=C:/Users/HWTP4412/Documents/Projets/Nodejs/osm-api/src/functions/osmconf.ini',
-        'points'
+        'point'
       ]
     }
   ).exec(cb);
