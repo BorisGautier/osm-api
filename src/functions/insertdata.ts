@@ -369,6 +369,7 @@ export async function insertData(client: PoolClient, country: string) {
               });
             } catch (error) {}
           });
+        }).catch((err) => {
         });
       } catch (error) {
       }
