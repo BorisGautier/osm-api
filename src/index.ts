@@ -2,6 +2,8 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import { createGeoJson } from './functions/create_geojson';
 import { osm2position } from './functions/osm2position';
+import { insertData } from './functions/insertdata';
+import { pool } from './functions/db.config';
 
 const app = express();
 
@@ -52,4 +54,16 @@ app.post('/osm2position', (req, res) => {
   } catch (error) {}
 });
 
-osm2position(process.argv[2])
+// osm2position(process.argv[2])
+
+function osmquery() {
+  pool.connect((err, client, done) => {
+    if (err) {
+      console.log(err);
+      return done(err);
+    }
+    insertData(client, process.argv[2]);
+  });
+}
+
+osmquery();
