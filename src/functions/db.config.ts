@@ -5,7 +5,7 @@ const config: PoolConfig = {
   host: 'localhost',
   database: 'position',
   password: 'postgres',
-  port: 5432
+  port: 4501
 };
 
 export const pool = new pg.Pool(config);

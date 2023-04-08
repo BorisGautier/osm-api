@@ -58,9 +58,11 @@ export async function insertData(client: PoolClient, country: string) {
   }
 
   var time = 0;
+  let number = 0;
 
   var interval = setInterval(function () {
     if (time < dataosm.length) {
+      number = number + 1;
       let commodites: string | undefined = '';
       let osm = dataosm[time];
       let name = osm['properties']['name'];
@@ -138,231 +140,242 @@ export async function insertData(client: PoolClient, country: string) {
         lon: lon
       };
 
-      clientNominatim.reverse(requete).then((nominatim) => {
-        let batiment = {
-          nom: name,
-          nombreNiveau: 0,
-          codeBatiment: 'BATIMENT_' + id,
-          longitude: lon,
-          latitude: lat,
-          ville: city ?? nominatim.address.city ?? nominatim.address.state,
-          commune: nominatim.address.city_district,
-          quartier: nominatim.address.suburb,
-          idUser: 1,
-          rue: rue ?? nominatim.address.road,
+      try {
+        clientNominatim.reverse(requete).then((nominatim) => {
+          let batiment = {
+            nom: name,
+            nombreNiveau: 0,
+            codeBatiment: 'BATIMENT_' + id,
+            longitude: lon,
+            latitude: lat,
+            ville: city ?? nominatim.address.city ?? nominatim.address.state,
+            commune: nominatim.address.city_district,
+            quartier: nominatim.address.suburb,
+            idUser: 1,
+            rue: rue ?? nominatim.address.road,
 
-          image: image ?? '/images/logo-nom.jpg',
-          createdAt: new Date()
-            .toISOString()
-            .replace(/T/, ' ')
-            .replace(/\..+/, ''),
-          updatedAt: new Date()
-            .toISOString()
-            .replace(/T/, ' ')
-            .replace(/\..+/, '')
-        };
+            image: image ?? '/images/logo-nom.jpg',
+            createdAt: new Date()
+              .toISOString()
+              .replace(/T/, ' ')
+              .replace(/\..+/, ''),
+            updatedAt: new Date()
+              .toISOString()
+              .replace(/T/, ' ')
+              .replace(/\..+/, '')
+          };
 
-        var replaceNameCaract = name.replace("'", "''");
-        var upperCaseName = replaceNameCaract;
-        let query = `INSERT INTO batiments (nom,  "nombre_niveau", "code", longitude, latitude, ville, commune, quartier, "user_id", rue,created_at,updated_at,image) VALUES ('${upperCaseName}', '${batiment.nombreNiveau}', '${batiment.codeBatiment}', '${batiment.longitude}', '${batiment.latitude}', '${batiment.ville}', '${batiment.commune}', '${batiment.quartier}', '${batiment.idUser}', '${batiment.rue}', '${batiment.createdAt}', '${batiment.updatedAt}','${batiment.image}') RETURNING *`;
-
-        client.query(query, (err, result) => {
           var replaceNameCaract = name.replace("'", "''");
           var upperCaseName = replaceNameCaract;
+          let query = `INSERT INTO batiments (nom,  "nombre_niveau", "code", longitude, latitude, ville, commune, quartier, "user_id", rue,created_at,updated_at,image) VALUES ('${upperCaseName}', '${batiment.nombreNiveau}', '${batiment.codeBatiment}', '${batiment.longitude}', '${batiment.latitude}', '${batiment.ville}', '${batiment.commune}', '${batiment.quartier}', '${batiment.idUser}', '${batiment.rue}', '${batiment.createdAt}', '${batiment.updatedAt}','${batiment.image}') RETURNING *`;
 
-          try {
-            let etablissement = {
-              idBatiment: result.rows[0].id,
-              nom: upperCaseName,
-              codePostal: addr_postcode,
-              siteInternet: website,
-              idUser: 1,
-              etage: 0,
-              services: services ?? 'Aucun service',
-              commodites: commodites == '' ? 'Pas de Commodités' : commodites,
-              phone: phone ?? '000000000',
-              whatsapp1: '000000000',
-              osmId: id,
-              description: description ?? 'Aucune Description',
-              cover: image ?? '/images/logo-nom.jpg',
+          client.query(query, (err, result) => {
+            var replaceNameCaract = name.replace("'", "''");
+            var upperCaseName = replaceNameCaract;
 
-              createdAt: new Date()
-                .toISOString()
-                .replace(/T/, ' ')
-                .replace(/\..+/, ''),
-              updatedAt: new Date()
-                .toISOString()
-                .replace(/T/, ' ')
-                .replace(/\..+/, '')
-            };
+            try {
+              let etablissement = {
+                idBatiment: result.rows[0].id,
+                nom: upperCaseName,
+                codePostal: addr_postcode,
+                siteInternet: website,
+                idUser: 1,
+                etage: 0,
+                services: services ?? 'Aucun service',
+                commodites: commodites == '' ? 'Pas de Commodités' : commodites,
+                phone: phone ?? '000000000',
+                whatsapp1: '000000000',
+                osmId: id,
+                description: description ?? 'Aucune Description',
+                cover: image ?? '/images/logo-nom.jpg',
 
-            let query0 = `INSERT INTO etablissements ("batiment_id", description,  nom, "code_postal", "site_internet", "user_id", etage, services, commodites, phone, whatsapp1, "osm_id",created_at,updated_at,cover) VALUES ('${etablissement.idBatiment}', '${etablissement.description}',  '${etablissement.nom}', '${etablissement.codePostal}', '${etablissement.siteInternet}', '${etablissement.idUser}', '${etablissement.etage}', '${etablissement.services}',  '${etablissement.commodites}', '${etablissement.phone}', '${etablissement.whatsapp1}', '${etablissement.osmId}','${etablissement.createdAt}','${etablissement.updatedAt}','${etablissement.cover}' ) RETURNING *`;
-            client.query(query0, (err, result1) => {
-              if (result1) {
-                let query1 = `INSERT INTO sous_categories_etablissements ("etablissement_id", "sous_categorie_id") VALUES ('${result1.rows[0].id}', '${souscategorie}')`;
-                client.query(query1, (err, result) => {});
-              }
+                createdAt: new Date()
+                  .toISOString()
+                  .replace(/T/, ' ')
+                  .replace(/\..+/, ''),
+                updatedAt: new Date()
+                  .toISOString()
+                  .replace(/T/, ' ')
+                  .replace(/\..+/, '')
+              };
 
-              if (opening_hours != undefined) {
-                let obj = convertHour(opening_hours);
-                try {
-                  if ('mo' in obj && obj.mo[0] && obj.mo[1]) {
-                    let lundi = {
-                      idEtablissement: result.rows[0].id,
-                      jour: 'Lundi',
-                      plageHoraire: obj.mo[0] + '-' + obj.mo[1],
-                      createdAt: new Date()
-                        .toISOString()
-                        .replace(/T/, ' ')
-                        .replace(/\..+/, ''),
-                      updatedAt: new Date()
-                        .toISOString()
-                        .replace(/T/, ' ')
-                        .replace(/\..+/, '')
-                    };
-                    let query = `INSERT INTO horaires ("etablissement_id", jour, "plage_horaire",created_at,updated_at) VALUES ('${lundi.idEtablissement}', '${lundi.jour}', '${lundi.plageHoraire}', '${lundi.createdAt}', '${lundi.updatedAt}')`;
-                    client.query(query, (err, result) => {
-                      if (err) {
-                      }
-                    });
-                  }
-                  if ('tu' in obj && obj.tu[0] && obj.tu[1]) {
-                    let mardi = {
-                      idEtablissement: result.rows[0].id,
-                      jour: 'Mardi',
-                      plageHoraire: obj.tu[0] + '-' + obj.tu[1],
-                      createdAt: new Date()
-                        .toISOString()
-                        .replace(/T/, ' ')
-                        .replace(/\..+/, ''),
-                      updatedAt: new Date()
-                        .toISOString()
-                        .replace(/T/, ' ')
-                        .replace(/\..+/, '')
-                    };
-                    let query = `INSERT INTO horaires ("etablissement_id", jour, "plage_horaire",created_at,updated_at) VALUES ('${mardi.idEtablissement}', '${mardi.jour}', '${mardi.plageHoraire}', '${mardi.createdAt}', '${mardi.updatedAt}')`;
-                    client.query(query, (err, result) => {
-                      if (err) {
-                      }
-                    });
-                  }
+              let query0 = `INSERT INTO etablissements ("batiment_id", description,  nom, "code_postal", "site_internet", "user_id", etage, services, commodites, phone, whatsapp1, "osm_id",created_at,updated_at,cover) VALUES ('${etablissement.idBatiment}', '${etablissement.description}',  '${etablissement.nom}', '${etablissement.codePostal}', '${etablissement.siteInternet}', '${etablissement.idUser}', '${etablissement.etage}', '${etablissement.services}',  '${etablissement.commodites}', '${etablissement.phone}', '${etablissement.whatsapp1}', '${etablissement.osmId}','${etablissement.createdAt}','${etablissement.updatedAt}','${etablissement.cover}' ) RETURNING *`;
+              client.query(query0, (err, result1) => {
+                if (result1) {
+                  let query1 = `INSERT INTO sous_categories_etablissements ("etablissement_id", "sous_categorie_id") VALUES ('${result1.rows[0].id}', '${souscategorie}')`;
+                  client.query(query1, (err, result) => {});
+                }
 
-                  if ('we' in obj && obj.we[0] && obj.we[1]) {
-                    let mercredi = {
-                      idEtablissement: result.rows[0].id,
-                      jour: 'Mercredi',
-                      plageHoraire: obj.we[0] + '-' + obj.we[1],
-                      createdAt: new Date()
-                        .toISOString()
-                        .replace(/T/, ' ')
-                        .replace(/\..+/, ''),
-                      updatedAt: new Date()
-                        .toISOString()
-                        .replace(/T/, ' ')
-                        .replace(/\..+/, '')
-                    };
-                    let query = `INSERT INTO horaires ("etablissement_id", jour, "plage_horaire",created_at,updated_at) VALUES ('${mercredi.idEtablissement}', '${mercredi.jour}', '${mercredi.plageHoraire}', '${mercredi.createdAt}', '${mercredi.updatedAt}')`;
-                    client.query(query, (err, result) => {
-                      if (err) {
-                      }
-                    });
-                  }
+                if (opening_hours != undefined) {
+                  let obj = convertHour(opening_hours);
+                  try {
+                    if ('mo' in obj && obj.mo[0] && obj.mo[1]) {
+                      let lundi = {
+                        idEtablissement: result.rows[0].id,
+                        jour: 'Lundi',
+                        plageHoraire: obj.mo[0] + '-' + obj.mo[1],
+                        createdAt: new Date()
+                          .toISOString()
+                          .replace(/T/, ' ')
+                          .replace(/\..+/, ''),
+                        updatedAt: new Date()
+                          .toISOString()
+                          .replace(/T/, ' ')
+                          .replace(/\..+/, '')
+                      };
+                      let query = `INSERT INTO horaires ("etablissement_id", jour, "plage_horaire",created_at,updated_at) VALUES ('${lundi.idEtablissement}', '${lundi.jour}', '${lundi.plageHoraire}', '${lundi.createdAt}', '${lundi.updatedAt}')`;
+                      client.query(query, (err, result) => {
+                        if (err) {
+                        }
+                      });
+                    }
+                    if ('tu' in obj && obj.tu[0] && obj.tu[1]) {
+                      let mardi = {
+                        idEtablissement: result.rows[0].id,
+                        jour: 'Mardi',
+                        plageHoraire: obj.tu[0] + '-' + obj.tu[1],
+                        createdAt: new Date()
+                          .toISOString()
+                          .replace(/T/, ' ')
+                          .replace(/\..+/, ''),
+                        updatedAt: new Date()
+                          .toISOString()
+                          .replace(/T/, ' ')
+                          .replace(/\..+/, '')
+                      };
+                      let query = `INSERT INTO horaires ("etablissement_id", jour, "plage_horaire",created_at,updated_at) VALUES ('${mardi.idEtablissement}', '${mardi.jour}', '${mardi.plageHoraire}', '${mardi.createdAt}', '${mardi.updatedAt}')`;
+                      client.query(query, (err, result) => {
+                        if (err) {
+                        }
+                      });
+                    }
 
-                  if ('th' in obj && obj.th[0] && obj.th[1]) {
-                    let jeudi = {
-                      idEtablissement: result.rows[0].id,
-                      jour: 'Jeudi',
-                      plageHoraire: obj.th[0] + '-' + obj.th[1],
-                      createdAt: new Date()
-                        .toISOString()
-                        .replace(/T/, ' ')
-                        .replace(/\..+/, ''),
-                      updatedAt: new Date()
-                        .toISOString()
-                        .replace(/T/, ' ')
-                        .replace(/\..+/, '')
-                    };
-                    let query = `INSERT INTO horaires ("etablissement_id", jour, "plage_horaire",created_at,updated_at) VALUES ('${jeudi.idEtablissement}', '${jeudi.jour}', '${jeudi.plageHoraire}', '${jeudi.createdAt}', '${jeudi.updatedAt}')`;
-                    client.query(query, (err, result) => {
-                      if (err) {
-                      }
-                    });
-                  }
+                    if ('we' in obj && obj.we[0] && obj.we[1]) {
+                      let mercredi = {
+                        idEtablissement: result.rows[0].id,
+                        jour: 'Mercredi',
+                        plageHoraire: obj.we[0] + '-' + obj.we[1],
+                        createdAt: new Date()
+                          .toISOString()
+                          .replace(/T/, ' ')
+                          .replace(/\..+/, ''),
+                        updatedAt: new Date()
+                          .toISOString()
+                          .replace(/T/, ' ')
+                          .replace(/\..+/, '')
+                      };
+                      let query = `INSERT INTO horaires ("etablissement_id", jour, "plage_horaire",created_at,updated_at) VALUES ('${mercredi.idEtablissement}', '${mercredi.jour}', '${mercredi.plageHoraire}', '${mercredi.createdAt}', '${mercredi.updatedAt}')`;
+                      client.query(query, (err, result) => {
+                        if (err) {
+                        }
+                      });
+                    }
 
-                  if ('fr' in obj && obj.fr[0] && obj.fr[1]) {
-                    let vendredi = {
-                      idEtablissement: result.rows[0].id,
-                      jour: 'Vendredi',
-                      plageHoraire: obj.fr[0] + '-' + obj.fr[1],
-                      createdAt: new Date()
-                        .toISOString()
-                        .replace(/T/, ' ')
-                        .replace(/\..+/, ''),
-                      updatedAt: new Date()
-                        .toISOString()
-                        .replace(/T/, ' ')
-                        .replace(/\..+/, '')
-                    };
-                    let query = `INSERT INTO horaires ("etablissement_id", jour, "plage_horaire",created_at,updated_at) VALUES ('${vendredi.idEtablissement}', '${vendredi.jour}', '${vendredi.plageHoraire}', '${vendredi.createdAt}', '${vendredi.updatedAt}')`;
-                    client.query(query, (err, result) => {
-                      if (err) {
-                      }
-                    });
-                  }
+                    if ('th' in obj && obj.th[0] && obj.th[1]) {
+                      let jeudi = {
+                        idEtablissement: result.rows[0].id,
+                        jour: 'Jeudi',
+                        plageHoraire: obj.th[0] + '-' + obj.th[1],
+                        createdAt: new Date()
+                          .toISOString()
+                          .replace(/T/, ' ')
+                          .replace(/\..+/, ''),
+                        updatedAt: new Date()
+                          .toISOString()
+                          .replace(/T/, ' ')
+                          .replace(/\..+/, '')
+                      };
+                      let query = `INSERT INTO horaires ("etablissement_id", jour, "plage_horaire",created_at,updated_at) VALUES ('${jeudi.idEtablissement}', '${jeudi.jour}', '${jeudi.plageHoraire}', '${jeudi.createdAt}', '${jeudi.updatedAt}')`;
+                      client.query(query, (err, result) => {
+                        if (err) {
+                        }
+                      });
+                    }
 
-                  if ('sa' in obj && obj.sa[0] && obj.sa[1]) {
-                    let samedi = {
-                      idEtablissement: result.rows[0].id,
-                      jour: 'Samedi',
-                      plageHoraire: obj.sa[0] + '-' + obj.sa[1],
-                      createdAt: new Date()
-                        .toISOString()
-                        .replace(/T/, ' ')
-                        .replace(/\..+/, ''),
-                      updatedAt: new Date()
-                        .toISOString()
-                        .replace(/T/, ' ')
-                        .replace(/\..+/, '')
-                    };
-                    let query = `INSERT INTO horaires ("etablissement_id", jour, "plage_horaire",created_at,updated_at) VALUES ('${samedi.idEtablissement}', '${samedi.jour}', '${samedi.plageHoraire}', '${samedi.createdAt}', '${samedi.updatedAt}')`;
-                    client.query(query, (err, result) => {
-                      if (err) {
-                      }
-                    });
-                  }
+                    if ('fr' in obj && obj.fr[0] && obj.fr[1]) {
+                      let vendredi = {
+                        idEtablissement: result.rows[0].id,
+                        jour: 'Vendredi',
+                        plageHoraire: obj.fr[0] + '-' + obj.fr[1],
+                        createdAt: new Date()
+                          .toISOString()
+                          .replace(/T/, ' ')
+                          .replace(/\..+/, ''),
+                        updatedAt: new Date()
+                          .toISOString()
+                          .replace(/T/, ' ')
+                          .replace(/\..+/, '')
+                      };
+                      let query = `INSERT INTO horaires ("etablissement_id", jour, "plage_horaire",created_at,updated_at) VALUES ('${vendredi.idEtablissement}', '${vendredi.jour}', '${vendredi.plageHoraire}', '${vendredi.createdAt}', '${vendredi.updatedAt}')`;
+                      client.query(query, (err, result) => {
+                        if (err) {
+                        }
+                      });
+                    }
 
-                  if ('su' in obj && obj.su[0] && obj.su[1]) {
-                    let dimanche = {
-                      idEtablissement: result.rows[0].id,
-                      jour: 'Dimanche',
-                      plageHoraire: obj.su[0] + '-' + obj.su[1],
-                      createdAt: new Date()
-                        .toISOString()
-                        .replace(/T/, ' ')
-                        .replace(/\..+/, ''),
-                      updatedAt: new Date()
-                        .toISOString()
-                        .replace(/T/, ' ')
-                        .replace(/\..+/, '')
-                    };
-                    let query = `INSERT INTO horaires ("etablissement_id", jour, "plage_horaire",created_at,updated_at) VALUES ('${dimanche.idEtablissement}', '${dimanche.jour}', '${dimanche.plageHoraire}', '${dimanche.createdAt}', '${dimanche.updatedAt}')`;
-                    client.query(query, (err, result) => {
-                      if (err) {
-                      }
-                    });
-                  }
-                } catch (error) {}
-              }
+                    if ('sa' in obj && obj.sa[0] && obj.sa[1]) {
+                      let samedi = {
+                        idEtablissement: result.rows[0].id,
+                        jour: 'Samedi',
+                        plageHoraire: obj.sa[0] + '-' + obj.sa[1],
+                        createdAt: new Date()
+                          .toISOString()
+                          .replace(/T/, ' ')
+                          .replace(/\..+/, ''),
+                        updatedAt: new Date()
+                          .toISOString()
+                          .replace(/T/, ' ')
+                          .replace(/\..+/, '')
+                      };
+                      let query = `INSERT INTO horaires ("etablissement_id", jour, "plage_horaire",created_at,updated_at) VALUES ('${samedi.idEtablissement}', '${samedi.jour}', '${samedi.plageHoraire}', '${samedi.createdAt}', '${samedi.updatedAt}')`;
+                      client.query(query, (err, result) => {
+                        if (err) {
+                        }
+                      });
+                    }
 
-              console.log('Etablissement ' + name + ' Bien ajouté');
-            });
-          } catch (error) {}
+                    if ('su' in obj && obj.su[0] && obj.su[1]) {
+                      let dimanche = {
+                        idEtablissement: result.rows[0].id,
+                        jour: 'Dimanche',
+                        plageHoraire: obj.su[0] + '-' + obj.su[1],
+                        createdAt: new Date()
+                          .toISOString()
+                          .replace(/T/, ' ')
+                          .replace(/\..+/, ''),
+                        updatedAt: new Date()
+                          .toISOString()
+                          .replace(/T/, ' ')
+                          .replace(/\..+/, '')
+                      };
+                      let query = `INSERT INTO horaires ("etablissement_id", jour, "plage_horaire",created_at,updated_at) VALUES ('${dimanche.idEtablissement}', '${dimanche.jour}', '${dimanche.plageHoraire}', '${dimanche.createdAt}', '${dimanche.updatedAt}')`;
+                      client.query(query, (err, result) => {
+                        if (err) {
+                        }
+                      });
+                    }
+                  } catch (error) {}
+                }
+
+                console.log(
+                  'Etablissement ' +
+                    name +
+                    ' Bien ajouté' +
+                    ' ' +
+                    number +
+                    '/' +
+                    dataosm.length
+                );
+              });
+            } catch (error) {}
+          });
         });
-      });
+      } catch (error) {
+      }
 
       time++;
     } else {
       clearInterval(interval);
     }
-  }, 1500);
+  }, 2000);
 }

@@ -5,16 +5,16 @@ import fs from 'fs';
 export function osm2position(country: string) {
   if (
     !fs.existsSync(
-      `C:/Users/HWTP4412/Documents/Projets/Nodejs/osm-api/src/osm/data/${country}`
+      `/var/www/osm-api/src/osm/data/${country}`
     )
   ) {
     fs.mkdirSync(
-      `C:/Users/HWTP4412/Documents/Projets/Nodejs/osm-api/src/osm/data/${country}`
+      `/var/www/osm-api/src/osm/data/${country}`
     );
   }
   for (let index = 0; index < tags.length; index++) {
     if (tags[index].tags_osm) {
-      const save_path = `C:/Users/HWTP4412/Documents/Projets/Nodejs/osm-api/src/osm/data/${country}/${tags[index].id}.geojson`;
+      const save_path = `/var/www/osm-api/src/osm/data/${country}/${tags[index].id}.geojson`;
       if (tags[index].tags_osm?.includes(';')) {
         const usetags = tags[index].tags_osm?.split(';');
 
@@ -28,7 +28,7 @@ export function osm2position(country: string) {
           const tag2 = `${keyvalue2![0]}=${value2}`;
 
           ogr2ogr(
-            `C:/Users/HWTP4412/Documents/Projets/Nodejs/osm-api/src/osm/${country}.osm.pbf`,
+            `/var/www/osm-api/src/osm/${country}.osm.pbf`,
             {
               format: 'GeoJSON',
               destination: save_path,
@@ -37,7 +37,7 @@ export function osm2position(country: string) {
                 '-where',
                 `${tag1} OR ${tag2}`,
                 '-oo',
-                'CONFIG_FILE=C:/Users/HWTP4412/Documents/Projets/Nodejs/osm-api/src/functions/osmconf.ini',
+                'CONFIG_FILE=/var/www/osm-api/src/functions/osmconf.ini',
                 'points'
               ]
             }
@@ -62,7 +62,7 @@ export function osm2position(country: string) {
           const tag3 = `${keyvalue3![0]}=${value3}`;
 
           ogr2ogr(
-            `C:/Users/HWTP4412/Documents/Projets/Nodejs/osm-api/src/osm/${country}.osm.pbf`,
+            `/var/www/osm-api/src/osm/${country}.osm.pbf`,
             {
               format: 'GeoJSON',
               destination: save_path,
@@ -71,7 +71,7 @@ export function osm2position(country: string) {
                 '-where',
                 `${tag1} OR ${tag2} OR ${tag3}`,
                 '-oo',
-                'CONFIG_FILE=C:/Users/HWTP4412/Documents/Projets/Nodejs/osm-api/src/functions/osmconf.ini',
+                'CONFIG_FILE=/var/www/osm-api/src/functions/osmconf.ini',
                 'points'
               ]
             }
@@ -89,7 +89,7 @@ export function osm2position(country: string) {
         const tag = `${keyvalue![0]}=${value}`;
 
         ogr2ogr(
-          `C:/Users/HWTP4412/Documents/Projets/Nodejs/osm-api/src/osm/${country}.osm.pbf`,
+          `/var/www/osm-api/src/osm/${country}.osm.pbf`,
           {
             format: 'GeoJSON',
             destination: save_path,
@@ -98,7 +98,7 @@ export function osm2position(country: string) {
               '-where',
               `${tag}`,
               '-oo',
-              'CONFIG_FILE=C:/Users/HWTP4412/Documents/Projets/Nodejs/osm-api/src/functions/osmconf.ini',
+              'CONFIG_FILE=/var/www/osm-api/src/functions/osmconf.ini',
               'points'
             ]
           }
