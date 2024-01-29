@@ -4,13 +4,14 @@ import { createGeoJson } from './functions/create_geojson';
 import { osm2position } from './functions/osm2position';
 import { insertData } from './functions/insertdata';
 import { pool } from './functions/db.config';
+import * as path from 'path';
 
 const app = express();
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-const port = 3000;
+const port = 5000;
 
 app.get('/', (_req, res) => {
   res.send(__dirname);
@@ -46,6 +47,8 @@ app.post('/creategeojson', (req, res) => {
   } catch (error) {}
 });
 
+app.use('/download', express.static(path.join(__dirname.split('dist')[0], 'src/osm/data')));
+
 app.post('/osm2position', (req, res) => {
   const country = req.body.country;
 
@@ -56,7 +59,7 @@ app.post('/osm2position', (req, res) => {
 
 // osm2position(process.argv[2])
 
-function osmquery() {
+/*function osmquery() {
   pool.connect((err, client, done) => {
     if (err) {
       console.log(err);
@@ -66,4 +69,4 @@ function osmquery() {
   });
 }
 
-osmquery();
+osmquery();*/

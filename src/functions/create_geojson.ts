@@ -1,4 +1,5 @@
 import ogr2ogr from 'ogr2ogr';
+import { readFile } from 'fs/promises';
 
 export function createGeoJson(
   tag: string,
@@ -6,10 +7,38 @@ export function createGeoJson(
   identifiant: string,
   cb: (err: any, { result }: any) => void
 ) {
-  const save_path = `/var/www/osm-api/src/osm/data/${country}/${identifiant}.geojson`;
+
+  const path = __dirname;
+  const project_path = path.split('dist')[0];
+  console.log(project_path);
+
+  const pbf_path = `${project_path}src/osm/${country}.osm.pbf`;
+
+  const save_path = `${project_path}src/osm/data/${country}/${identifiant}.geojson`;
+
+  const config_path = `${project_path}src/functions/osmconf.ini`;
+
+ 
+
+
+
+  //check if file exist and delete it
+  const fs = require('fs');
+
+  fs.access(save_path, (err: any) => {
+    if (!err) {
+      fs.unlink(save_path, (err: any) => {
+        if (err) throw err;
+        console.log('file deleted');
+      });
+    } else {
+      console.log('file does not exist');
+    }
+  });
+
 
   ogr2ogr(
-    `/var/www/osm-api/src/osm/${country}.osm.pbf`,
+    pbf_path,
     {
       format: 'GeoJSON',
       destination: save_path,
@@ -18,9 +47,29 @@ export function createGeoJson(
         '-where',
         `${tag}`,
         '-oo',
-        'CONFIG_FILE=/var/www/osm-api/src/functions/osmconf.ini',
-        'point'
+        'CONFIG_FILE=' + config_path,
+        'points'
       ]
     }
-  ).exec(cb);
+  ).exec(
+    async (err: any, data: any) => {
+      if (err) {
+        console.error(err);
+        cb(err, {
+          error: err
+        });
+      } else {
+
+        //parcours moi le fichier geojson genere
+        const file = await readFile(save_path, 'utf8');
+        const osmData = JSON.parse(file)['features'];
+
+        console.log(data);
+        cb(err, {
+          features_count: osmData.length,
+          save_path: `/download/${country}/${identifiant}.geojson`
+        });
+      }
+    }
+  );
 }
