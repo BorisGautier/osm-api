@@ -3,7 +3,7 @@ import tags from './sc.json'; // Import du fichier JSON contenant les tags
 import fs from 'fs';
 
 export function osm2position(country: string) {
-  const appDir = "C:/Users/HWTP4412/Documents/Projets/Nodejs/osm-api"
+  const appDir = "/var/www/position/osm-api"
   // Vérification et création du répertoire de données
   const dataDir = appDir + `/src/osm/data/${country}`;
   if (!fs.existsSync(dataDir)) {
