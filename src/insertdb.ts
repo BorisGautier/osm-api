@@ -7,7 +7,10 @@ function osmquery() {
             console.log(err);
             return done(err);
         }
-        insertData(client, process.argv[2]);
+        if (client) {
+
+            insertData(client, process.argv[2]);   
+        }
     });
 }
 
