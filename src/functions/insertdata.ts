@@ -28,14 +28,14 @@ export async function insertData(client: PoolClient, country: string) {
         if (osmData[j]['properties']['other_tags']) {
           osmData[j]['tags'] = JSON.parse(
             '{' +
-              osmData[j]['properties']['other_tags'].replace(/=>/g, ':') +
-              '}'
+            osmData[j]['properties']['other_tags'].replace(/=>/g, ':') +
+            '}'
           );
         }
 
         data.push(osmData[j]);
       }
-    } catch (error) {}
+    } catch (error) { }
   }
 
   for (let i = 0; i < data.length; i++) {
@@ -169,7 +169,7 @@ export async function insertData(client: PoolClient, country: string) {
           var upperCaseName = replaceNameCaract;
           let query = `INSERT INTO batiments (nom,  "nombre_niveau", "code", longitude, latitude, ville, commune, quartier, "user_id", rue,created_at,updated_at,image) VALUES ('${upperCaseName}', '${batiment.nombreNiveau}', '${batiment.codeBatiment}', '${batiment.longitude}', '${batiment.latitude}', '${batiment.ville}', '${batiment.commune}', '${batiment.quartier}', '${batiment.idUser}', '${batiment.rue}', '${batiment.createdAt}', '${batiment.updatedAt}','${batiment.image}') RETURNING *`;
 
-          client.query(query, (err, result) => {
+          client.query(query, async (err, result) => {
             var replaceNameCaract = name.replace("'", "''");
             var upperCaseName = replaceNameCaract;
 
@@ -200,10 +200,19 @@ export async function insertData(client: PoolClient, country: string) {
               };
 
               let query0 = `INSERT INTO etablissements ("batiment_id", description,  nom, "code_postal", "site_internet", "user_id", etage, services, commodites, phone, whatsapp1, "osm_id",created_at,updated_at,cover) VALUES ('${etablissement.idBatiment}', '${etablissement.description}',  '${etablissement.nom}', '${etablissement.codePostal}', '${etablissement.siteInternet}', '${etablissement.idUser}', '${etablissement.etage}', '${etablissement.services}',  '${etablissement.commodites}', '${etablissement.phone}', '${etablissement.whatsapp1}', '${etablissement.osmId}','${etablissement.createdAt}','${etablissement.updatedAt}','${etablissement.cover}' ) RETURNING *`;
-              client.query(query0, (err, result1) => {
+              client.query(query0, async (err, result1) => {
                 if (result1) {
                   let query1 = `INSERT INTO sous_categories_etablissements ("etablissement_id", "sous_categorie_id") VALUES ('${result1.rows[0].id}', '${souscategorie}')`;
-                  client.query(query1, (err, result) => {});
+                  try {
+                    client.query(query1, (err, result) => { });
+                  } catch (error) {
+
+                    await client.query(`DELETE FROM etablissements WHERE id = ${result1.rows[0].id}`);
+                    await client.query(`DELETE FROM batiments WHERE id = ${result.rows[0].id}`);
+
+
+                  }
+
                 }
 
                 if (opening_hours != undefined) {
@@ -224,10 +233,15 @@ export async function insertData(client: PoolClient, country: string) {
                           .replace(/\..+/, '')
                       };
                       let query = `INSERT INTO horaires ("etablissement_id", jour, "plage_horaire",created_at,updated_at) VALUES ('${lundi.idEtablissement}', '${lundi.jour}', '${lundi.plageHoraire}', '${lundi.createdAt}', '${lundi.updatedAt}')`;
-                      client.query(query, (err, result) => {
-                        if (err) {
-                        }
-                      });
+                      try {
+                        client.query(query, (err, result) => { });
+                      } catch (error) {
+                        await client.query(`DELETE FROM horaires WHERE etablissement_id = ${result1.rows[0].id}`);
+                        await client.query(`DELETE FROM sous_categories_etablissements WHERE etablissement_id = ${result1.rows[0].id}`);
+                        await client.query(`DELETE FROM etablissements WHERE id = ${result1.rows[0].id}`);
+                        await client.query(`DELETE FROM batiments WHERE id = ${result.rows[0].id}`);
+                      }
+
                     }
                     if ('tu' in obj && obj.tu[0] && obj.tu[1]) {
                       let mardi = {
@@ -244,10 +258,14 @@ export async function insertData(client: PoolClient, country: string) {
                           .replace(/\..+/, '')
                       };
                       let query = `INSERT INTO horaires ("etablissement_id", jour, "plage_horaire",created_at,updated_at) VALUES ('${mardi.idEtablissement}', '${mardi.jour}', '${mardi.plageHoraire}', '${mardi.createdAt}', '${mardi.updatedAt}')`;
-                      client.query(query, (err, result) => {
-                        if (err) {
-                        }
-                      });
+                      try {
+                        client.query(query, (err, result) => { });
+                      } catch (error) {
+                        await client.query(`DELETE FROM horaires WHERE etablissement_id = ${result1.rows[0].id}`);
+                        await client.query(`DELETE FROM sous_categories_etablissements WHERE etablissement_id = ${result1.rows[0].id}`);
+                        await client.query(`DELETE FROM etablissements WHERE id = ${result1.rows[0].id}`);
+                        await client.query(`DELETE FROM batiments WHERE id = ${result.rows[0].id}`);
+                      }
                     }
 
                     if ('we' in obj && obj.we[0] && obj.we[1]) {
@@ -265,10 +283,14 @@ export async function insertData(client: PoolClient, country: string) {
                           .replace(/\..+/, '')
                       };
                       let query = `INSERT INTO horaires ("etablissement_id", jour, "plage_horaire",created_at,updated_at) VALUES ('${mercredi.idEtablissement}', '${mercredi.jour}', '${mercredi.plageHoraire}', '${mercredi.createdAt}', '${mercredi.updatedAt}')`;
-                      client.query(query, (err, result) => {
-                        if (err) {
-                        }
-                      });
+                      try {
+                        client.query(query, (err, result) => { });
+                      } catch (error) {
+                        await client.query(`DELETE FROM horaires WHERE etablissement_id = ${result1.rows[0].id}`);
+                        await client.query(`DELETE FROM sous_categories_etablissements WHERE etablissement_id = ${result1.rows[0].id}`);
+                        await client.query(`DELETE FROM etablissements WHERE id = ${result1.rows[0].id}`);
+                        await client.query(`DELETE FROM batiments WHERE id = ${result.rows[0].id}`);
+                      }
                     }
 
                     if ('th' in obj && obj.th[0] && obj.th[1]) {
@@ -286,10 +308,14 @@ export async function insertData(client: PoolClient, country: string) {
                           .replace(/\..+/, '')
                       };
                       let query = `INSERT INTO horaires ("etablissement_id", jour, "plage_horaire",created_at,updated_at) VALUES ('${jeudi.idEtablissement}', '${jeudi.jour}', '${jeudi.plageHoraire}', '${jeudi.createdAt}', '${jeudi.updatedAt}')`;
-                      client.query(query, (err, result) => {
-                        if (err) {
-                        }
-                      });
+                      try {
+                        client.query(query, (err, result) => { });
+                      } catch (error) {
+                        await client.query(`DELETE FROM horaires WHERE etablissement_id = ${result1.rows[0].id}`);
+                        await client.query(`DELETE FROM sous_categories_etablissements WHERE etablissement_id = ${result1.rows[0].id}`);
+                        await client.query(`DELETE FROM etablissements WHERE id = ${result1.rows[0].id}`);
+                        await client.query(`DELETE FROM batiments WHERE id = ${result.rows[0].id}`);
+                      }
                     }
 
                     if ('fr' in obj && obj.fr[0] && obj.fr[1]) {
@@ -307,10 +333,14 @@ export async function insertData(client: PoolClient, country: string) {
                           .replace(/\..+/, '')
                       };
                       let query = `INSERT INTO horaires ("etablissement_id", jour, "plage_horaire",created_at,updated_at) VALUES ('${vendredi.idEtablissement}', '${vendredi.jour}', '${vendredi.plageHoraire}', '${vendredi.createdAt}', '${vendredi.updatedAt}')`;
-                      client.query(query, (err, result) => {
-                        if (err) {
-                        }
-                      });
+                      try {
+                        client.query(query, (err, result) => { });
+                      } catch (error) {
+                        await client.query(`DELETE FROM horaires WHERE etablissement_id = ${result1.rows[0].id}`);
+                        await client.query(`DELETE FROM sous_categories_etablissements WHERE etablissement_id = ${result1.rows[0].id}`);
+                        await client.query(`DELETE FROM etablissements WHERE id = ${result1.rows[0].id}`);
+                        await client.query(`DELETE FROM batiments WHERE id = ${result.rows[0].id}`);
+                      }
                     }
 
                     if ('sa' in obj && obj.sa[0] && obj.sa[1]) {
@@ -328,10 +358,14 @@ export async function insertData(client: PoolClient, country: string) {
                           .replace(/\..+/, '')
                       };
                       let query = `INSERT INTO horaires ("etablissement_id", jour, "plage_horaire",created_at,updated_at) VALUES ('${samedi.idEtablissement}', '${samedi.jour}', '${samedi.plageHoraire}', '${samedi.createdAt}', '${samedi.updatedAt}')`;
-                      client.query(query, (err, result) => {
-                        if (err) {
-                        }
-                      });
+                      try {
+                        client.query(query, (err, result) => { });
+                      } catch (error) {
+                        await client.query(`DELETE FROM horaires WHERE etablissement_id = ${result1.rows[0].id}`);
+                        await client.query(`DELETE FROM sous_categories_etablissements WHERE etablissement_id = ${result1.rows[0].id}`);
+                        await client.query(`DELETE FROM etablissements WHERE id = ${result1.rows[0].id}`);
+                        await client.query(`DELETE FROM batiments WHERE id = ${result.rows[0].id}`);
+                      }
                     }
 
                     if ('su' in obj && obj.su[0] && obj.su[1]) {
@@ -349,25 +383,32 @@ export async function insertData(client: PoolClient, country: string) {
                           .replace(/\..+/, '')
                       };
                       let query = `INSERT INTO horaires ("etablissement_id", jour, "plage_horaire",created_at,updated_at) VALUES ('${dimanche.idEtablissement}', '${dimanche.jour}', '${dimanche.plageHoraire}', '${dimanche.createdAt}', '${dimanche.updatedAt}')`;
-                      client.query(query, (err, result) => {
-                        if (err) {
-                        }
-                      });
+                      try {
+                        client.query(query, (err, result) => { });
+                      } catch (error) {
+                        await client.query(`DELETE FROM horaires WHERE etablissement_id = ${result1.rows[0].id}`);
+                        await client.query(`DELETE FROM sous_categories_etablissements WHERE etablissement_id = ${result1.rows[0].id}`);
+                        await client.query(`DELETE FROM etablissements WHERE id = ${result1.rows[0].id}`);
+                        await client.query(`DELETE FROM batiments WHERE id = ${result.rows[0].id}`);
+                      }
                     }
-                  } catch (error) {}
+                  } catch (error) { }
                 }
 
                 console.log(
                   'Etablissement ' +
-                    name +
-                    ' Bien ajouté' +
-                    ' ' +
-                    number +
-                    '/' +
-                    dataosm.length
+                  name +
+                  ' Bien ajouté' +
+                  ' ' +
+                  number +
+                  '/' +
+                  dataosm.length
                 );
               });
-            } catch (error) {}
+            } catch (error) {
+              console.log(error)
+              await client.query(`DELETE FROM batiments WHERE id = ${result.rows[0].id}`);
+            }
           });
         }).catch((err) => {
         });

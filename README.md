@@ -10,5 +10,6 @@ $ npm install
 - Exple folder : /src/osm/cameroun.osm.pbf
 
 ```
-$ npm start "country_name"
+$ cp .env.example .env
+$ npm run exec
 ```

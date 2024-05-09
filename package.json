@@ -5,6 +5,10 @@
   "main": "dist/index.js",
   "scripts": {
     "start": "tsc && node dist/index.js",
+    "osm2position": "tsc && node dist/osm2position.js",
+    "insertdb": "tsc && node dist/insertdb.js",
+    "exec": "tsc && node dist/exec.js",
+    "build": "tsc",
     "prettier-format": "prettier --config .prettierrc src/**/*.ts --write",
     "lint": "eslint . --ext .ts",
     "lint-and-fix": "eslint . --ext .ts --fix"
