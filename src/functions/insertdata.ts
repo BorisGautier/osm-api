@@ -207,9 +207,6 @@ export async function insertData(client: PoolClient, country: string) {
                     client.query(query1, (err, result) => { });
                   } catch (error) {
 
-                    await client.query(`DELETE FROM etablissements WHERE id = ${result1.rows[0].id}`);
-                    await client.query(`DELETE FROM batiments WHERE id = ${result.rows[0].id}`);
-
 
                   }
 
@@ -236,10 +233,6 @@ export async function insertData(client: PoolClient, country: string) {
                       try {
                         client.query(query, (err, result) => { });
                       } catch (error) {
-                        await client.query(`DELETE FROM horaires WHERE etablissement_id = ${result1.rows[0].id}`);
-                        await client.query(`DELETE FROM sous_categories_etablissements WHERE etablissement_id = ${result1.rows[0].id}`);
-                        await client.query(`DELETE FROM etablissements WHERE id = ${result1.rows[0].id}`);
-                        await client.query(`DELETE FROM batiments WHERE id = ${result.rows[0].id}`);
                       }
 
                     }
@@ -261,10 +254,6 @@ export async function insertData(client: PoolClient, country: string) {
                       try {
                         client.query(query, (err, result) => { });
                       } catch (error) {
-                        await client.query(`DELETE FROM horaires WHERE etablissement_id = ${result1.rows[0].id}`);
-                        await client.query(`DELETE FROM sous_categories_etablissements WHERE etablissement_id = ${result1.rows[0].id}`);
-                        await client.query(`DELETE FROM etablissements WHERE id = ${result1.rows[0].id}`);
-                        await client.query(`DELETE FROM batiments WHERE id = ${result.rows[0].id}`);
                       }
                     }
 
@@ -286,10 +275,6 @@ export async function insertData(client: PoolClient, country: string) {
                       try {
                         client.query(query, (err, result) => { });
                       } catch (error) {
-                        await client.query(`DELETE FROM horaires WHERE etablissement_id = ${result1.rows[0].id}`);
-                        await client.query(`DELETE FROM sous_categories_etablissements WHERE etablissement_id = ${result1.rows[0].id}`);
-                        await client.query(`DELETE FROM etablissements WHERE id = ${result1.rows[0].id}`);
-                        await client.query(`DELETE FROM batiments WHERE id = ${result.rows[0].id}`);
                       }
                     }
 
@@ -311,10 +296,6 @@ export async function insertData(client: PoolClient, country: string) {
                       try {
                         client.query(query, (err, result) => { });
                       } catch (error) {
-                        await client.query(`DELETE FROM horaires WHERE etablissement_id = ${result1.rows[0].id}`);
-                        await client.query(`DELETE FROM sous_categories_etablissements WHERE etablissement_id = ${result1.rows[0].id}`);
-                        await client.query(`DELETE FROM etablissements WHERE id = ${result1.rows[0].id}`);
-                        await client.query(`DELETE FROM batiments WHERE id = ${result.rows[0].id}`);
                       }
                     }
 
@@ -336,10 +317,6 @@ export async function insertData(client: PoolClient, country: string) {
                       try {
                         client.query(query, (err, result) => { });
                       } catch (error) {
-                        await client.query(`DELETE FROM horaires WHERE etablissement_id = ${result1.rows[0].id}`);
-                        await client.query(`DELETE FROM sous_categories_etablissements WHERE etablissement_id = ${result1.rows[0].id}`);
-                        await client.query(`DELETE FROM etablissements WHERE id = ${result1.rows[0].id}`);
-                        await client.query(`DELETE FROM batiments WHERE id = ${result.rows[0].id}`);
                       }
                     }
 
@@ -361,10 +338,6 @@ export async function insertData(client: PoolClient, country: string) {
                       try {
                         client.query(query, (err, result) => { });
                       } catch (error) {
-                        await client.query(`DELETE FROM horaires WHERE etablissement_id = ${result1.rows[0].id}`);
-                        await client.query(`DELETE FROM sous_categories_etablissements WHERE etablissement_id = ${result1.rows[0].id}`);
-                        await client.query(`DELETE FROM etablissements WHERE id = ${result1.rows[0].id}`);
-                        await client.query(`DELETE FROM batiments WHERE id = ${result.rows[0].id}`);
                       }
                     }
 
@@ -386,10 +359,6 @@ export async function insertData(client: PoolClient, country: string) {
                       try {
                         client.query(query, (err, result) => { });
                       } catch (error) {
-                        await client.query(`DELETE FROM horaires WHERE etablissement_id = ${result1.rows[0].id}`);
-                        await client.query(`DELETE FROM sous_categories_etablissements WHERE etablissement_id = ${result1.rows[0].id}`);
-                        await client.query(`DELETE FROM etablissements WHERE id = ${result1.rows[0].id}`);
-                        await client.query(`DELETE FROM batiments WHERE id = ${result.rows[0].id}`);
                       }
                     }
                   } catch (error) { }
@@ -406,8 +375,6 @@ export async function insertData(client: PoolClient, country: string) {
                 );
               });
             } catch (error) {
-              console.log(error)
-              await client.query(`DELETE FROM batiments WHERE id = ${result.rows[0].id}`);
             }
           });
         }).catch((err) => {
