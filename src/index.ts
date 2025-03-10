@@ -1,5 +1,6 @@
 import express from 'express';
 import bodyParser from 'body-parser';
+import { Logger } from './functions/logger';
 
 const app = express();
 
@@ -13,5 +14,7 @@ app.get('/', (_req, res) => {
 });
 
 app.listen(port, () => {
+  const logger = Logger.getInstance();
+  logger.info(`server is listening on ${port}`)
   return console.log(`server is listening on ${port}`);
 });
