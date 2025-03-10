@@ -1,7 +1,7 @@
-var days = ['mo', 'tu', 'we', 'th', 'fr', 'sa', 'su'];
+const days = ['mo', 'tu', 'we', 'th', 'fr', 'sa', 'su'];
 
 export function convertHour(text: string) {
-  var result: any = null;
+  let result: any = null;
   if (text === '' || text === null) {
     result = null;
   } else if (text == '24/7') {
@@ -10,12 +10,12 @@ export function convertHour(text: string) {
     result = { seasonal: true };
   } else {
     result = {};
-    var modified_some_days = false;
-    for (var k = 0; k < days.length; k++) {
+    let modified_some_days = false;
+    for (let k = 0; k < days.length; k++) {
       result[days[k]] = null;
     }
 
-    var dayregex = /^(mo|tu|we|th|fr|sa|su)\-?(mo|tu|we|th|fr|sa|su)?$/,
+    let dayregex = /^(mo|tu|we|th|fr|sa|su)\-?(mo|tu|we|th|fr|sa|su)?$/,
       timeregex = /^\s*(\d\d:\d\d)\-(\d\d:\d\d)\s*$/,
       dayranges = text.toLowerCase().split(/\s*;\s*/),
       dayrange;
@@ -31,7 +31,7 @@ export function convertHour(text: string) {
 
       while ((daytime = daytimes.shift())) {
         if (dayregex.test(daytime)) {
-          var daymatches = daytime.match(dayregex);
+          const daymatches = daytime.match(dayregex);
 
           if (daymatches!.length === 3) {
             startday = days.indexOf(daymatches![1]);
@@ -44,7 +44,7 @@ export function convertHour(text: string) {
             return null;
           }
         } else if (timeregex.test(daytime)) {
-          var timematches = daytime.match(timeregex);
+          const timematches = daytime.match(timeregex);
 
           if (timematches!.length === 3) {
             starttime = timematches![1];
@@ -57,7 +57,7 @@ export function convertHour(text: string) {
         }
       }
 
-      for (var j = startday; j <= endday; j++) {
+      for (let j = startday; j <= endday; j++) {
         result[days[j]] = [starttime, endtime];
         modified_some_days = true;
       }

@@ -1,75 +1,67 @@
-import ogr2ogr from 'ogr2ogr';
-import { readFile } from 'fs/promises';
+import { GeoJsonCreator } from './GeoJsonCreator';
+import { Logger } from './logger';
 
+// Export d'une fonction simple pour la compatibilité avec le code existant
 export function createGeoJson(
   tag: string,
   country: string,
   identifiant: string,
-  cb: (err: any, { result }: any) => void
+  cb: (err: any, result: any) => void
 ) {
+  const logger = Logger.getInstance();
+  const creator = new GeoJsonCreator(logger);
 
-  const path = __dirname;
-  const project_path = path.split('dist')[0];
-  console.log(project_path);
-
-  const pbf_path = `${project_path}src/osm/${country}.osm.pbf`;
-
-  const save_path = `${project_path}src/osm/data/${country}/${identifiant}.geojson`;
-
-  const config_path = `${project_path}src/functions/osmconf.ini`;
-
- 
-
-
-
-  //check if file exist and delete it
-  const fs = require('fs');
-
-  fs.access(save_path, (err: any) => {
-    if (!err) {
-      fs.unlink(save_path, (err: any) => {
-        if (err) throw err;
-        console.log('file deleted');
-      });
-    } else {
-      console.log('file does not exist');
-    }
-  });
-
-
-  ogr2ogr(
-    pbf_path,
-    {
-      format: 'GeoJSON',
-      destination: save_path,
-      timeout: 1800000,
-      options: [
-        '-where',
-        `${tag}`,
-        '-oo',
-        'CONFIG_FILE=' + config_path,
-        'points'
-      ]
-    }
-  ).exec(
-    async (err: any, data: any) => {
-      if (err) {
-        console.error(err);
-        cb(err, {
-          error: err
-        });
-      } else {
-
-        //parcours moi le fichier geojson genere
-        const file = await readFile(save_path, 'utf8');
-        const osmData = JSON.parse(file)['features'];
-
-        console.log(data);
-        cb(err, {
-          features_count: osmData.length,
+  creator
+    .createGeoJson(tag, country, identifiant)
+    .then((result) => {
+      if (result.success) {
+        cb(null, {
+          features_count: result.featuresCount,
           save_path: `/download/${country}/${identifiant}.geojson`
         });
+      } else {
+        cb(result.error, {
+          error: result.error
+        });
       }
-    }
+    })
+    .catch((error) => {
+      cb(error, { error });
+    });
+}
+
+// Fonction utilitaire pour transformer un fichier OSM PBF en série de GeoJSON
+export async function generateCategoryGeoJsons(
+  country: string,
+  categories: (
+    | {
+        id: number;
+        nom: string;
+        id_categorie: number;
+        tags_osm: string;
+      }
+    | {
+        id: number;
+        nom: string;
+        id_categorie: number;
+        tags_osm?: undefined;
+      }
+  )[],
+  options: any = {}
+): Promise<any> {
+  const logger = Logger.getInstance();
+  const creator = new GeoJsonCreator(logger);
+
+  logger.info(
+    `Génération de GeoJSON pour ${categories.length} catégories dans ${country}`
   );
+
+  const tasks = categories.map((category) => ({
+    tag: category.tags_osm!,
+    country,
+    identifiant: category.id.toString(),
+    options
+  }));
+
+  return await creator.createBatch(tasks);
 }

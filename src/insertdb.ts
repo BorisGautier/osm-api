@@ -1,17 +1,15 @@
-import { pool } from "./functions/db.config";
-import { insertData } from "./functions/insertdata";
+import { insertData } from './functions/insertdata';
+import { pool } from './functions/db.config';
 
-function osmquery() {
-    pool.connect((err, client, done) => {
-        if (err) {
-            console.log(err);
-            return done(err);
-        }
-        if (client) {
-
-            insertData(client, process.argv[2]);   
-        }
-    });
+async function insertDataInDB() {
+  pool.connect(async (err, client, done) => {
+    if (err) {
+      return done(err);
+    }
+    if (client) {
+      await insertData(client, 'cameroun');
+    }
+  });
 }
 
-osmquery();
+insertDataInDB();
